@@ -4,7 +4,7 @@
 This project is a production-oriented Machine Learning system designed to forecast product demand and optimize inventory decisions for retail and e-commerce businesses.
 
 Unlike simple notebook-based ML projects, this system covers the full lifecycle of a real-world ML solution:
-
+z 
 Data engineering pipeline
 
 Time-series forecasting models
