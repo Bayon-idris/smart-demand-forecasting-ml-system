@@ -1,6 +1,8 @@
 import pandas as pd
 from collections import defaultdict
 
+import pandas as pd
+
 def load_group_best_sales(file_path, chunksize=1_000_000):
     store_sales = defaultdict(int)
     store_products = defaultdict(set)
