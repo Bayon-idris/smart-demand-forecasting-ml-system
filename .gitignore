@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd   
+data/
+output/
+utils/__pycache__/
+*/__pycache__/
+*/*.pyc
+project-guidelines.txt
+venv/
+test.py
+models/
+*/__init__.py
