@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import defaultdict
 from eda.eda import create_new_csv_file_based_on_store_best_sales, load_group_best_sales
-from predictions.predictions import predict
+from predictions.prediction import predict, predict
 from utils.verify_path import verify_data_path
 
 

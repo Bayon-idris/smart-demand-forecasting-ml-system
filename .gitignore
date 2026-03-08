@@ -10,3 +10,5 @@ utils/__pycache__/
 project-guidelines.txt
 venv/
 test.py
+models/
+*/__init__.py
