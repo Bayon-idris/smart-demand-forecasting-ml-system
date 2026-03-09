@@ -3,6 +3,8 @@ from collections import defaultdict
 
 import pandas as pd
 
+from utils import constant
+
 def load_group_best_sales(file_path, chunksize=1_000_000):
     store_sales = defaultdict(int)
     store_products = defaultdict(set)
@@ -28,15 +30,45 @@ def load_group_best_sales(file_path, chunksize=1_000_000):
     return df_summary
 
 def create_new_csv_file_based_on_store_best_sales(store_to_extract_id, output_file_path, file_path):
+
     reader = pd.read_csv(file_path, chunksize=1_000_000)
+    first_write = True
 
     with open(output_file_path, "w", newline="") as f_out:
-        for i, chunk in enumerate(reader):
+
+        for chunk in reader:
+
             chunk_store = chunk[chunk["store_id"] == store_to_extract_id]
-            if i == 0:
+
+            if chunk_store.empty:
+                continue
+
+            chunk_store = create_time_series_features(chunk_store)
+
+            chunk_store = chunk_store.dropna()
+
+            if first_write:
                 chunk_store.to_csv(f_out, index=False)
+                first_write = False
             else:
                 chunk_store.to_csv(f_out, index=False, header=False)
 
     print("Extraction terminée.")
     
+def create_time_series_features(df):
+    """
+    Create additional lag and rolling features for demand forecasting
+    """
+
+    # LAGS
+    df["lag_14"] = df["sales"].shift(14)
+    df["lag_28"] = df["sales"].shift(28)
+
+    # ROLLING MEAN
+    df["rolling_mean_7"] = df["sales"].shift(1).rolling(window=7).mean()
+    df["rolling_mean_30"] = df["sales"].shift(1).rolling(window=30).mean()
+
+    # ROLLING STD
+    df["rolling_std_7"] = df["sales"].shift(1).rolling(window=7).std()
+
+    return df    
