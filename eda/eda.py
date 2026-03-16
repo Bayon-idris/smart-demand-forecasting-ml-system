@@ -53,8 +53,6 @@ def create_new_csv_file_based_on_store_best_sales(
 
             chunk_store = add_peak_flag(chunk_store)
 
-            chunk_store = convert_date_in_date_format(chunk_store)
-
             chunk_store = chunk_store.dropna()
 
             chunk_store = keep_only_features(chunk_store, features)
@@ -99,10 +97,7 @@ def add_peak_flag(df):
 
     return df
 
+
 def keep_only_features(df, features):
     existing_features = [col for col in features if col in df.columns]
     return df[existing_features]
-
-def convert_date_in_date_format(df):
-    df["date"] = pd.to_datetime(dict(year=df["year"], month=df["month"], day=df["day"]))
-    return df

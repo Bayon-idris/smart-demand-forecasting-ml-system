@@ -4,10 +4,12 @@ store_base_path = "data/store_sales.csv"
 
 features = [
     "sales",
-    "date",
     "wm_yr_wk",
     "wday",
     "snap",
+    "year",
+    "month",
+    "day",
     "lag_1",
     "lag_7",
     "lag_14",
@@ -21,7 +23,7 @@ features = [
     "price_flag",
     "snap_weekend",
     "event_count",
-    "event_impact"
+    "event_impact",
 ]
 
 target = "sales"
