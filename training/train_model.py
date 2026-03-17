@@ -1,68 +1,109 @@
 import pandas as pd
-import joblib
-from xgboost import XGBRegressor
+import pickle
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import RandomizedSearchCV
+from xgboost import XGBRegressor
+import matplotlib.pyplot as plt
 
+from eda.eda import load_data, prepare_features
 from utils import constant
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import pandas as pd
 
 
+def plot_model_performance(y_test, y_pred, save_path=constant.metric_base_path):
 
-def train(filepath):
+    os.makedirs(save_path, exist_ok=True)
 
-    df = pd.read_csv(filepath)
+    residuals = y_test - y_pred
 
-    train_df = df[df["year"] <= 2014]
+    plt.figure(figsize=(15, 10))
 
-    X_train = train_df[constant.features]
-    y_train = train_df[constant.target]
+    plt.subplot(2, 2, 1)
+    n = 200
+    plt.plot(y_test[:n], label="Actual")
+    plt.plot(y_pred[:n], linestyle="--", label="Predicted")
+    plt.title("Actual vs Predicted (Zoom)")
+    plt.legend()
+    plt.grid(True)
 
-    # Find the best parameters with RandomizedSearchCV
-    # model = XGBRegressor(random_state=42)
-    # param_dist = {
-    #     "n_estimators": [100, 200, 300, 400],
-    #     "max_depth": [3, 4, 5, 6, 7],
-    #     "learning_rate": [0.01, 0.03, 0.05, 0.1],
-    #     "subsample": [0.7, 0.8, 0.9, 1.0],
-    #     "colsample_bytree": [0.7, 0.8, 0.9, 1.0]
-    # }
+    plt.subplot(2, 2, 2)
+    plt.scatter(y_test, y_pred, alpha=0.3)
+    plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], linestyle="--")
+    plt.xlabel("Actual")
+    plt.ylabel("Predicted")
+    plt.title("Scatter: Actual vs Predicted")
+    plt.grid(True)
 
-    # random_search = RandomizedSearchCV(
-    #     model,
-    #     param_distributions=param_dist,
-    #     n_iter=20,  # nombre de combinaisons testées
-    #     cv=3,
-    #     scoring="neg_mean_absolute_error",
-    #     verbose=1,
-    #     n_jobs=-1,
-    #     random_state=42
-    # )
+    plt.subplot(2, 2, 3)
+    plt.plot(residuals)
+    plt.axhline(0, linestyle="--")
+    plt.title("Residuals (Errors)")
+    plt.grid(True)
 
-    # print("Starting hyperparameter tuning...")
-    # random_search.fit(X_train, y_train)
-    # print("Best parameters:", random_search.best_params_)
+    plt.subplot(2, 2, 4)
+    sns.histplot(residuals, bins=50, kde=True)
+    plt.title("Error Distribution")
+    plt.grid(True)
 
-    # Feature importance finding
+    plt.tight_layout()
 
-    # importance = model.feature_importances_
+    plt.savefig(f"{save_path}/model_performance.png")
+    plt.close()
 
-    # feature_importance = pd.DataFrame(
-    #     {"feature": features, "importance": importance}
-    # ).sort_values(by="importance", ascending=False)
-
-    # print(feature_importance)
-
-    # Best Paramters found with RandomizedSearchCV by scikit-learn
-    model = XGBRegressor(
-        learning_rate=0.1,
-        max_depth=5,
-        n_estimators=100,
-        subsample=1.0,
-        colsample_bytree=1.0,
-        random_state=42,
-        objective="reg:pseudohubererror",
+    error_df = pd.DataFrame(
+        {"actual": y_test, "pred": y_pred, "error": np.abs(y_test - y_pred)}
     )
+
+    error_df_sorted = error_df.sort_values(by="error", ascending=False)
+
+    error_df_sorted.to_csv(f"{save_path}/top_errors.csv", index=False)
+
+    print(f"\n✅ Graph saved to {save_path}/model_performance.png")
+    print(f"✅ Errors saved to {save_path}/top_errors.csv")
+
+
+def train():
+
+    train_df = load_data("data/train.csv")
+    test_df = load_data("data/test.csv")
+
+    dv = DictVectorizer()
+
+    X_train = prepare_features(train_df, dv, fit=True)
+    X_test = prepare_features(test_df, dv, fit=False)
+
+    y_train = train_df["sales"].values
+    y_test = test_df["sales"].values
+
+    model = XGBRegressor(
+        subsample=0.8,
+        n_estimators=500,
+        min_child_weight=3,
+        max_depth=3,
+        learning_rate=0.05,
+        gamma=0,
+        colsample_bytree=0.9,
+        random_state=42,
+    )
+
+    print("\nTraining tuned XGBoost model...")
     model.fit(X_train, y_train)
 
-    joblib.dump(model, constant.model_base_path)
+    y_pred = model.predict(X_test)
 
-    print("Model saved successfully")
+    rmse = mean_squared_error(y_test, y_pred) ** 0.5
+    print(f"RMSE (Tuned XGBoost): {rmse:.3f}")
+
+    plot_model_performance(y_test, y_pred)
+
+
+def save_model(dv: DictVectorizer, model: XGBRegressor):
+    with open(constant.model_base_path, "wb") as f_out:
+        pickle.dump((dv, model), f_out)
+
+    print("\nModel saved to model/xgboost_sales_model.bin")
