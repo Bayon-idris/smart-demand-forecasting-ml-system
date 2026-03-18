@@ -12,3 +12,4 @@ venv/
 test.py
 models/
 */__init__.py
+details/
