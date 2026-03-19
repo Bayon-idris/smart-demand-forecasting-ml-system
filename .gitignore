@@ -3,13 +3,10 @@ __pycache__/
 *.pyo
 *.pyd   
 data/
-output/
-utils/__pycache__/
 */__pycache__/
 */*.pyc
-project-guidelines.txt
 venv/
 test.py
-models/
 */__init__.py
-details/
+documentation/
+artifacts/
