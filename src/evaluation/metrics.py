@@ -71,10 +71,10 @@ def plot_model_performance(y_true, y_pred, save_dir=None):
     plt.tight_layout()
 
     plot_path = os.path.join(save_dir, "model_performance.png")
-    plt.savefig(plot_path)
-    plt.close()
+    # plt.savefig(plot_path)
+    # plt.close()
 
-    print(f"\n✅ Plot saved to {plot_path}")
+    return plot_path
 
 
 def save_top_errors(y_true, y_pred, save_dir=None, top_n=100):
@@ -93,4 +93,4 @@ def save_top_errors(y_true, y_pred, save_dir=None, top_n=100):
     file_path = os.path.join(save_dir, "top_errors.csv")
     error_df.head(top_n).to_csv(file_path, index=False)
 
-    print(f"✅ Top errors saved to {file_path}")
+    return file_path
