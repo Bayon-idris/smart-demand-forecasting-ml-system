@@ -11,3 +11,6 @@ test.py
 documentation/
 artifacts/
 mlruns/
+test.py
+forecast_plot.png
+predictions.csv
