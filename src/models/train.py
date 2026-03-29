@@ -60,13 +60,10 @@ from src.utils.config import load_config
 from src.utils.utils import save_model
 from src.utils import paths
 
-
 def train(df):
 
     config = load_config()
     params = config["model_parameters"]
-
-    print("🔹 Splitting dataset...")
 
     df = df.sort_values("date")
     split_index = int(len(df) * 0.8)
@@ -83,23 +80,13 @@ def train(df):
     y_test = test_df["sales"].values
 
     model = XGBRegressor(**params)
-
-    print("\n🚀 Training model...")
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
 
     metrics = compute_metrics(y_test, y_pred)
-    print(metrics)
 
     save_metrics(metrics)
-
-    plot_model_performance(y_test, y_pred)
-
-    save_top_errors(y_test, y_pred)
-
     save_model(model, dv, paths.MODEL_PATH)
 
-    print(f"✅ Model saved to {paths.MODEL_PATH}")
-
-    return model, dv
+    return model, dv, metrics
