@@ -1,5 +1,5 @@
 from scipy import sparse
-
+import pandas as pd
 
 def prepare_features(df, dv=None, fit=False):
 
@@ -38,3 +38,26 @@ def prepare_features(df, dv=None, fit=False):
     X = sparse.hstack([X_cat, X_num])
 
     return X
+
+
+def create_features(df):
+    df = df.copy()
+
+    df["date"] = pd.to_datetime(df["date"])
+
+    df["year"] = df["date"].dt.year
+    df["month"] = df["date"].dt.month
+    df["dayofweek"] = df["date"].dt.dayofweek
+    df["is_weekend"] = df["dayofweek"].isin([5, 6]).astype(int)
+
+    df["lag_1"] = df.groupby("store")["sales"].shift(1)
+    df["lag_7"] = df.groupby("store")["sales"].shift(7)
+    df["lag_14"] = df.groupby("store")["sales"].shift(14)
+    df["lag_21"] = df.groupby("store")["sales"].shift(21)
+    df["lag_28"] = df.groupby("store")["sales"].shift(28)
+
+    df["rolling_mean_7"] = df.groupby("store")["sales"].shift(1).rolling(7).mean()
+    df["rolling_mean_14"] = df.groupby("store")["sales"].shift(1).rolling(14).mean()
+    df["rolling_mean_28"] = df.groupby("store")["sales"].shift(1).rolling(28).mean()
+
+    return df

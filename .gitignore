@@ -10,3 +10,7 @@ test.py
 */__init__.py
 documentation/
 artifacts/
+mlruns/
+test.py
+forecast_plot.png
+predictions.csv

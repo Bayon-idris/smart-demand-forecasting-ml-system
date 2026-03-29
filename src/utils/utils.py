@@ -1,18 +1,24 @@
+import os
 import pickle
 from src.utils import paths
 
 
-def save_model(dv, model):
+def save_model(model, dv, model_output_path):
 
-    with open(paths.MODEL_PATH, "wb") as f_out:
-        pickle.dump((dv, model), f_out)
+    os.makedirs(os.path.dirname(model_output_path), exist_ok=True)
+    with open(model_output_path, "wb") as f_out:
+        pickle.dump((model, dv), f_out)
 
-    print(f"\n✅ Model saved to {paths.MODEL_PATH}")
+    print(f"✅ Model saved to {model_output_path}")
 
 
-def load_model():
+def load_model(model_input_path):
+    if not os.path.exists(model_input_path):
+        raise FileNotFoundError(
+            f"No file found at: {os.path.abspath(model_input_path)}"
+        )
 
-    with open(paths.MODEL_PATH, "rb") as f_in:
+    with open(model_input_path, "rb") as f_in:
         dv, model = pickle.load(f_in)
 
     return dv, model
