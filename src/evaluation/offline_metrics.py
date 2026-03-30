@@ -62,10 +62,10 @@ def plot_model_performance(y_true, y_pred, save_dir=None):
     plt.tight_layout()
 
     plot_path = os.path.join(save_dir, "model_performance.png")
-    # plt.savefig(plot_path)
-    # plt.close()
+    plt.savefig(plot_path)
+    plt.close()
 
-    return plot_path
+    # return plot_path
 
 
 def save_top_errors(y_true, y_pred, save_dir=None, top_n=100):

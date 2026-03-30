@@ -4,13 +4,14 @@ from src.pipeline.inference import build_summary, run_inference
 from src.data.preprocessing import load_data
 import pandas as pd
 import json
-from src.utils.utils import load_model
+from src.utils.utils import load_model, validate_input
 from src.utils import paths
 
 
 def main():
 
     df = pd.read_csv(paths.STORE_PATH)
+    validate_input(df)
 
     model, dv = load_model(paths.MODEL_PATH)
 
@@ -23,7 +24,6 @@ def main():
 
     response = {"summary": summary, "predictions": result_df.to_dict(orient="records")}
 
-    # 7. print JSON propre
     print(json.dumps(response, indent=2))
 
 

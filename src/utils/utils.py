@@ -22,3 +22,15 @@ def load_model(model_input_path):
         dv, model = pickle.load(f_in)
 
     return dv, model
+
+
+def validate_input(df):
+
+    required = ["date", "product_id", "sales"]
+
+    missing_required = [c for c in required if c not in df.columns]
+
+    if missing_required:
+        raise ValueError(f"Missing required columns: {missing_required}")
+
+    return df

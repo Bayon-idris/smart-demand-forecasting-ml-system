@@ -1,7 +1,6 @@
 import yaml
 from src.utils import paths
 
-
 def load_config():
     try:
         with open(paths.CONFIG_PATH, "r") as f:
@@ -20,3 +19,6 @@ def load_config():
 
     except Exception as e:
         raise RuntimeError(f"Failed to load configuration: {e}")
+    
+    
+    
