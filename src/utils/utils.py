@@ -1,5 +1,7 @@
 import os
 import pickle
+
+from fastapi import HTTPException, UploadFile
 from src.utils import paths
 
 
@@ -34,3 +36,40 @@ def validate_input(df):
         raise ValueError(f"Missing required columns: {missing_required}")
 
     return df
+
+
+def validate_file(file: UploadFile):
+    if not file:
+        raise HTTPException(status_code=400, detail="no file uploaded")
+    if not file.filename.endswith((".csv", ".xlsx")):
+        raise ValueError(
+            f"Invalid file type: {file.filename}. Only .csv and .xlsx files are allowed."
+        )
+
+
+def format_api_response(df):
+
+    results = []
+
+    for _, row in df.iterrows():
+        results.append({
+            "product_id": int(row["product_id"]),
+            "date": str(row["date"]),
+
+            "forecast": {
+                "predicted_sales": float(row["predicted_sales"]),
+                "uncertainty": {
+                    "lower": float(row["prediction_lower"]),
+                    "upper": float(row["prediction_upper"]),
+                }
+            },
+
+            "inventory": {
+                "recommended_stock": float(row["recommended_stock"]),
+                "safety_stock": float(row["safety_stock"]),
+            },
+
+            "decision": row["decision"]
+        })
+
+    return results
