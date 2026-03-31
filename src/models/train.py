@@ -37,7 +37,5 @@ def train(df):
     save_metrics(metrics)
     save_model(model, dv, paths.MODEL_PATH)
     plot_model_performance(y_test, y_pred)
-    
-    print("Model training completed. Metrics saved and model stored at:", paths.MODEL_PATH)
 
     return {"metrics": metrics, "model_path": paths.MODEL_PATH}
